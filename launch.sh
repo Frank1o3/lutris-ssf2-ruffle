@@ -19,9 +19,11 @@ ARGS=(
     --power high
     --no-gui
     --filesystem-access-mode allow
-    --frame-rate 60
+    --frame-rate 30
     --cache-directory "$CACHE_DIR"
     --save-directory "$SAVE_DIR"
+    --quality low
+    --gamemode on
 )
 
 case "${GRAPHICS_BACKEND:-auto}" in
