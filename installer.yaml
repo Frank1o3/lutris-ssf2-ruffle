@@ -1,0 +1,94 @@
+name: Super Smash Flash 2
+game_slug: super-smash-flash-2
+version: Beta 1.4.0.1 - Ruffle Nightly 2026-09-19
+slug: super-smash-flash-2-beta-1401-ruffle
+runner: linux
+year: 2017
+
+script:
+  game:
+    exe: $GAMEDIR/launch.sh
+    working_dir: $GAMEDIR
+
+  files:
+    - ssf2_archive:
+        url: https://cdn.supersmashflash.com/ssf2/downloads/fc7d249c/SSF2BetaLinux.v1.4.0.1.tar
+        filename: SSF2BetaLinux.v1.4.0.1.tar
+
+    - ruffle_archive:
+        url: https://github.com/ruffle-rs/ruffle/releases/download/nightly-2026-09-19/ruffle-nightly-2026_09_19-linux-x86_64.tar.gz
+        filename: ruffle-nightly-2026_09_19-linux-x86_64.tar.gz
+
+    - launch_script:
+        url: https://raw.githubusercontent.com/Frank1o3/lutris-ssf2-ruffle/main/launch.sh
+        filename: launch.sh
+
+  installer:
+    # Select Ruffle graphics backend.
+    - input_menu:
+        id: GRAPHICS
+        description: "Choose the Ruffle graphics backend:"
+        options:
+          - auto: Automatic (recommended)
+          - vulkan: Vulkan
+          - gl: OpenGL
+        preselect: auto
+
+    # Extract Super Smash Flash 2.
+    - extract:
+        file: ssf2_archive
+        dst: $GAMEDIR
+        format: tar
+
+    # Extract portable Ruffle.
+    - extract:
+        file: ruffle_archive
+        dst: $CACHE/ssf2-ruffle
+        format: tgz
+
+    # Copy the Ruffle executable.
+    - move:
+        src: $CACHE/ssf2-ruffle/ruffle
+        dst: $GAMEDIR/ruffle
+
+    - chmodx: $GAMEDIR/ruffle
+
+    # Install the launcher.
+    - move:
+        src: launch_script
+        dst: $GAMEDIR/launch.sh
+
+    - chmodx: $GAMEDIR/launch.sh
+
+    # Store the user's selected graphics backend.
+    - write_file:
+        file: $GAMEDIR/ruffle.conf
+        content: |
+          GRAPHICS_BACKEND="$INPUT_GRAPHICS"
+
+    # Remove the original Adobe Flash runtime and launcher.
+    - execute:
+        description: Removing legacy Flash runtime
+        command: |
+          rm -f \
+            "$GAMEDIR/SSF2" \
+            "$GAMEDIR/data/fp" \
+            "$GAMEDIR/data/fp64" \
+            "$GAMEDIR/data/run.sh" \
+            "$GAMEDIR/trust-ssf2.sh"
+        working_dir: $GAMEDIR
+        disable_runtime: true
+
+    # Remove temporary extraction files.
+    - execute:
+        description: Cleaning temporary files
+        command: rm -rf "$CACHE/ssf2-ruffle"
+        disable_runtime: true
+
+install_complete_text: |
+  Super Smash Flash 2 Beta 1.4.0.1 has been installed with Ruffle.
+
+  Ruffle is bundled locally with the game.
+  No system-wide Ruffle installation is required.
+
+  The original Adobe Flash runtime and launcher have been removed.
