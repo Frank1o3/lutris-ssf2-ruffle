@@ -2,6 +2,8 @@
 set -euo pipefail
 
 GAME_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+CACHE_DIR="$GAME_DIR/cache"
+SAVE_DIR="$GAME_DIR/save"
 
 CONFIG="$GAME_DIR/ruffle.conf"
 GRAPHICS_BACKEND="auto"
@@ -13,8 +15,12 @@ fi
 
 ARGS=(
     --power high
-    --gamemode on
+    --no-gui
     --filesystem-access-mode allow
+    --frame-rate 60
+    --base "$GAME_DIR"
+    --cache-directory "$CACHE_DIR"
+    --save-directory "$SAVE_DIR"
 )
 
 case "${GRAPHICS_BACKEND:-auto}" in
